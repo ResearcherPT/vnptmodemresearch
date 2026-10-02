@@ -161,6 +161,7 @@ openssl passwd -1 "uid = admin;psw = 123456"
 rồi mới dùng hash này thay vào hash cũ, tương tự với các user khác, nếu đổi pass cho operator thì uid sẽ là operator , ... nếu password là 1234 thì chỗ psw sẽ là 1234, ...
 
 * Hướng dẫn sử dụng đã có trong tool, chạy tool với argument trống sẽ in hướng dẫn
+* Lưu ý từ bản T007 trở đi (trên 040NS) thì password telnet admin được generate từ SN của modem, bạn có thể xài tool theo hướng dẫn từ issue https://github.com/ResearcherPT/vnptmodemresearch/issues/23#issuecomment-5951961939 để get password
 ### 4.2: Yêu cầu để sử dụng tool
 * Python (đã test từ bản 3.11.6 và có thể chạy từ 3.11.6 đổ lên, thực ra hầu hết các bản mới đều có thể chạy được) và có cài package pycryptodome `pip install pycryptodome`
 * *chỉ vậy thôi*
