@@ -1,3 +1,5 @@
+<p align="center">&lt;BussyBakks&gt; https://discord.gg/5XbjNNtRFW for general, i guess.</p>
+<hr>
 <h1 align="center">VNPT Reverse Engineering & Rooting Project</h1>
 
 ***<h4 align="center">Không gì là không thể :)</h4>***
