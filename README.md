@@ -302,7 +302,7 @@ chmod +x /tmp/auto_dump_boatemp.sh
 ## 10: <ins>Thảo luận</ins>
 * [VOZ](http://voz.vn/t/vnptmodemresearch-%E2%80%94-nghien-cuu-firmware-root-modem-vnpt-can-anh-em-chung-tay.1159218)
 * [Github](https://github.com/ResearcherPT/vnptmodemresearch/discussions/10)
-* ~~Discord~~
+* [Discord](https://discord.gg/5XbjNNtRFW)
 ---
 ## 11: <ins>Những mục tiêu sắp tới (Cho 040-NS)</ins>
 * Cài được OpenWRT (Đã hoạt động trên -NS -> Đang thử nghiệm thêm driver PON -> ~~Release vào năm sau~~)
