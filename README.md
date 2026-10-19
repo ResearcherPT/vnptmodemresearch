@@ -76,6 +76,7 @@
   * user3 / star ( web, disable by default, quyền thấp)
 
 * Khi đăng nhập thành công sẽ vào trực tiếp shell mặc định (BusyBox Shell)
+* Với các dòng firmware của NS và XS (R0102-xs trở đi,R0207-ns trở đi) password sẽ được tính dựa trên xponsn (điều này cũng đúng với các key cho file backup romfile) 
 ### 3.3: Telnet/SSH 
 > [!TIP]
 > Mình gọi Web-UI là trang để quản lý router với IP như [192.168.1.1](https://192.168.1.1/) hoặc [192.168.0.1](https://192.168.0.1/)  
@@ -120,6 +121,7 @@ Và quay lại [đây](https://github.com/ResearcherPT/vnptmodemresearch/blob/ma
     - Đèn PON nhấp nháy: Bạn phải ấn giữ 2 nút trên trong tầm 6-7s, khi mà đèn PON nhấp nháy là bạn đã kích hoạt xong telnet và giờ có thể kết nối rồi nhé!
     - Nếu không thì còn một cách với tất cả các dòng, đăng nhập vào web quản trị (192.168.1.1) rồi tắt ACL đi thì sẽ truy cập telnet/ssh được
     - Lưu ý nho nhỏ là dòng XGS chỉ có telnet, không có ssh
+    - Bạn có thể mở port cho telnet/(ssh) bằng cách tắt ACL tại phần cài đặt cho modem thì sẽ mở port (tuy nhiên lưu ý với các bản firmware mới đã note trên phần credentials thì password cho admin sẽ được generate dựa trên sn, có thể đổi bằng tool edit romfile mới nhất cho dòng XS,NS, vui lòng tìm tại thư mục tools, password là giá trị dd trong tool script)
 
 
 
@@ -135,18 +137,18 @@ Và quay lại [đây](https://github.com/ResearcherPT/vnptmodemresearch/blob/ma
   + SSID, mật khẩu Wi-Fi
   + Cấu hình mạng, firewall, cron, ...
 * **Lưu ý:** File chứa nhiều thông tin nhạy cảm (ISP Username, thông tin cấu hình router, ...) nên không share cho bất kì ai ngoài project này nếu bạn cho phép. *Bạn sẽ không biết họ sẽ làm gì với tài khoản PPPoE của bạn đâu...*
-* File cfg đã decrypt của dòng XS có thể tìm thấy trong data của repo này
+* File cfg đã decrypt (mẫu) của dòng XS có thể tìm thấy trong /data của repo này
 ### 4.1: Decrypt và chỉnh sửa
 * `romfile.cfg` được encrypt bằng bộ mã hoá EVP_aes_256_cbc bởi binary `cfg_manager` (dòng -H) và `/userfs/bin/cfg` (dòng -NS,-XS)
-* Key/IV của 2 dòng -H và -NS đã được reverse. 2 dòng sài 2 key/IV khác nhau riêng đối với dòng -XS sử dụng PKCS7 với private key đã được dump (chi tiết xem trong code dùng để decrypt/encrypt romfile )
-* Có thể giải mã bằng tool trong repo (**Lưu ý: chọn đúng model để decrypt đúng file. Sai sẽ không đọc được, model cho dòng XS đang được code, xài tạm command trên máy để thay thế !**)
+* Key/IV của 2 dòng -H và -NS đã được reverse. 2 dòng sài 2 key/IV khác nhau riêng đối với dòng -XS sử dụng PKCS7 với private key đã được dump (chi tiết xem trong code dùng để decrypt/encrypt romfile , với bản firmware mới đã được note thì tính pem từ sn, cũng đã có tool để tính và decrypt(cho dòng NS và XS))
+* Có thể giải mã bằng tool trong repo (**Lưu ý: chọn đúng model để decrypt đúng file. Sai sẽ không đọc được, code cho dòng XS ở bản firmware cũ đang được code, xài tạm command trên máy để thay thế !**)
 * Cách này còn có thể sử dụng để thêm script autostartup mà không phải cài patch (tuy nhiên chỉ hiệu quả với dòng -H do dòng -NS có cơ chế kiểm tra file backup khá nghiêm nên sẽ không chấp nhận file backup sau chỉnh sửa, dòng -XS cũng có cách để pack lại sau edit
 	+ Cụ thể, với dòng -XS sau khi tải romfile.cfg từ webui thì có thể dùng command ( cài openssl ) hoặc tool python ( dùng cho trường hợp lấy config từ các dump mtd ) để decrypt
 ```bash
 openssl smime -decrypt -inform DER -in path/to/romfile.cfg -out /whatever/romfile.cfd.dec -inkey path/to/romfile_encrypt_privatekey.pem
 ```
 
-   + File privatekey.pem trên đã được up trong repo, lưu ý trỏ tới đúng file
+   + File privatekey.pem trên đã được up trong repo, lưu ý trỏ tới đúng file (cho firmware cũ, firmware mới có tool tính pem từ sn)
    + Sau khi chỉnh sửa xong ( bạn có thể thay hash của các tài khoản để đặt lại mật khẩu tuỳ thích, đây chính là cách để có được admin shell trên model -XS hiện tại ), tool để gen hash đã có trong tools của repo này ), sau đó bạn phải pack ( encrypt ) lại file .cfg bằng lệnh
 ```bash
 openssl smime -encrypt -inform DER -outform DER \
@@ -163,11 +165,11 @@ openssl passwd -1 "uid = admin;psw = 123456"
 rồi mới dùng hash này thay vào hash cũ, tương tự với các user khác, nếu đổi pass cho operator thì uid sẽ là operator , ... nếu password là 1234 thì chỗ psw sẽ là 1234, ...
 
 * Hướng dẫn sử dụng đã có trong tool, chạy tool với argument trống sẽ in hướng dẫn
-* Lưu ý từ bản T007 trở đi (trên 040NS) thì password telnet admin được generate từ SN của modem, bạn có thể xài tool theo hướng dẫn từ issue https://github.com/ResearcherPT/vnptmodemresearch/issues/23#issuecomment-5951961939 để get password
+* Lưu ý từ bản T007 trở đi (trên 040NS) thì password telnet admin được generate từ SN của modem, bạn có thể xài tool theo hướng dẫn từ issue https://github.com/ResearcherPT/vnptmodemresearch/issues/23#issuecomment-5951961939 để get password, tương tự với dòng XS
 ### 4.2: Yêu cầu để sử dụng tool
 * Python (đã test từ bản 3.11.6 và có thể chạy từ 3.11.6 đổ lên, thực ra hầu hết các bản mới đều có thể chạy được) và có cài package pycryptodome `pip install pycryptodome`
 * *chỉ vậy thôi*
-### 4.3: Mở Telnet/SSH bằng cách edit romfile.cfg (*không mất sau reboot nhưng vẫn mất sau khi factory reset, dành cho dòng -H, -XS *)
+### 4.3: Mở Telnet/SSH bằng cách edit romfile.cfg (*không mất sau reboot nhưng vẫn mất sau khi factory reset, dành cho dòng -H, -XS *) (lưu ý trick này không xài được cho firmware mới, bạn có thể tắt ACL và edit romfile đổi pass của các user để login bằng telnet bình thường)
 * 1: Decrypt ``romfile.cfg``
 * *Note: Nếu đọc file đã decrypt mà xuất hiện các ô ? (<img width="216" height="18" alt="image" src="https://github.com/user-attachments/assets/a164bc82-070f-4669-985d-dc05b7dc02a2" />) như này thì hãy kiểm tra các bước, ưu tiên sử dụng code python chạy local(các tool trên web dễ bị lỗi ) một khi file decrypt lỗi thì không thể xài để backup mà chỉ để đọc thông tin, cần file đầy đủ và không lỗi mới có thể backup lại lên modem ( do sẽ có double check content để xác minh tính hợp lệ )*
 * 2 (-H): Tìm nơi quản lý Cron (trong file là \<Crond\>) và thêm
@@ -320,6 +322,8 @@ chmod +x /tmp/auto_dump_boatemp.sh
 * Xác nhận tool edit romfile đã chạy được với các model [GW020-H](https://www.vnpt-technology.vn/vi/product_detail/gpon-ont-igate-gw020-h), [GW240-H](https://www.vnpt-technology.vn/vi/product_detail/gpon-ont-igate-gw240-h), [GW040-H](https://www.vnpt-technology.vn/vi/product_detail/gpon-ont-igate-gw040-h), [GW040-NS](https://www.vnpt-technology.vn/vi/product_detail/gpon-ont-igate-gw040-ns) và command chạy được với model [GW050-XGS](https://www.vnpt-technology.vn/vi/product_detail/xgs-pon-ont-igate-xsw050-ns)
 * Đã tìm được cách decode file .asp trong cgi-bin
 * Các file cfg trên model có cấu trúc như sau nén gzip->header HD3R,version,length,...(256bytes)->data encrypt by PKCS7 structure
+* Đã có tool cho các firmware generate pem,dd từ SN (xponSN)
+* Tính năng autoexec trong romfile đã không còn trên các firmware mới của model XS, tuy nhiên khi có shell telnet thì vẫn có thể sử dụng tính năng này bằng cách ghi lệnh cần thực thi tự động mỗi lần reboot vào file sh có tên autoexec.sh
 
 ## Đóng góp:
 - Xin cảm ơn 2 bạn [@BussyBakks](https://github.com/BussyBakks) và [@AppleSang](https://github.com/AppleSang) đã giúp em nghiên cứu thêm về key cho romfile.cfg dòng modem NS và cài các ứng dụng
