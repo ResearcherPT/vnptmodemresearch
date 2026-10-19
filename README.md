@@ -121,7 +121,8 @@ Và quay lại [đây](https://github.com/ResearcherPT/vnptmodemresearch/blob/ma
     - Đèn PON nhấp nháy: Bạn phải ấn giữ 2 nút trên trong tầm 6-7s, khi mà đèn PON nhấp nháy là bạn đã kích hoạt xong telnet và giờ có thể kết nối rồi nhé!
     - Nếu không thì còn một cách với tất cả các dòng, đăng nhập vào web quản trị (192.168.1.1) rồi tắt ACL đi thì sẽ truy cập telnet/ssh được
     - Lưu ý nho nhỏ là dòng XGS chỉ có telnet, không có ssh
-    - Bạn có thể mở port cho telnet/(ssh) bằng cách tắt ACL tại phần cài đặt cho modem thì sẽ mở port (tuy nhiên lưu ý với các bản firmware mới đã note trên phần credentials thì password cho admin sẽ được generate dựa trên sn, có thể đổi bằng tool edit romfile mới nhất cho dòng XS,NS, vui lòng tìm tại thư mục tools, password là giá trị dd trong tool script)
+    - Bạn có thể mở port cho telnet/(ssh) bằng cách tắt ACL tại phần cài đặt cho modem thì sẽ mở port (tuy nhiên lưu ý với các bản firmware mới đã note trên phần credentials thì password cho admin sẽ được generate dựa trên sn, và KHÔNG THỂ THAY ĐỔI PASS (nếu đổi sẽ mất sau 1 lần reboot) do có binary check mỗi lần boot để kiểm tra, có thể tính password (dd) bằng tool edit romfile mới nhất cho dòng XS,NS, vui lòng tìm tại thư mục tools, password là giá trị dd trong tool script)
+    - 
 
 
 
@@ -212,6 +213,7 @@ Ngoài lệnh này mọi người có thể thêm các lệnh khác nếu muốn
     	* Dùng OpenWrt initramfs để boot tạm (qua UART).
     	* Flash lại các file mtdX.bin từ backup.
     	* Khởi động lại và restore cấu hình (`romfile.cfg`), hoặc nếu muốn chắc hơn thì hãy tải lại firmware và update qua webUI 1 lần nữa.
+     * Lưu ý, mẹo này không thể dùng cho các model có bản firmware mới (đã note) do các trường này bị xoá, và cũng có tiến trình check loại bỏ ký tự đặc biệt (chỉ chấp nhận ASCII in được; chặn backtick, ;, |, &, <, >, newline, CR và cặp $())
 
 ## LJ: <ins> OpenWrt cho các dòng modem khác </ins>
 
@@ -324,6 +326,29 @@ chmod +x /tmp/auto_dump_boatemp.sh
 * Các file cfg trên model có cấu trúc như sau nén gzip->header HD3R,version,length,...(256bytes)->data encrypt by PKCS7 structure
 * Đã có tool cho các firmware generate pem,dd từ SN (xponSN)
 * Tính năng autoexec trong romfile đã không còn trên các firmware mới của model XS, tuy nhiên khi có shell telnet thì vẫn có thể sử dụng tính năng này bằng cách ghi lệnh cần thực thi tự động mỗi lần reboot vào file sh có tên autoexec.sh
+* Bạn có thể tự decode file firmware tclinux_encrypted.bin... bằng cách dùng tool decode asp để xor nó một lần, sau đó giải mã bằng key firmware tương  (img_encrypt_privatekey.pem) sau đó bỏ qua phần header, ... thì bạn sẽ có file chứa đủ fit plain toàn bộ
+* Trong các firmware mới có 1 tiến trình sẽ dọn sạch các file không nằm trong allow list 
+/tmp/userdata/wlan_off
+/tmp/userdata/alarm_id
+/tmp/userdata/fault_data
+/tmp/userdata/resetFactoryFlag
+/tmp/userdata/factoryserial
+/tmp/userdata/cwmpver
+/tmp/userdata/hardwareversion
+/tmp/userdata/gpioversion
+/tmp/userdata/bootdeviceversion
+
+cùng với các file trong subtree của các thư mục:
+
+/tmp/userdata/backtrace
+/tmp/userdata/SG/backup
+/tmp/userdata/database
+/tmp/userdata/onelinkagent
+/tmp/userdata/lost+found
+/tmp/yaffs/lost+found
+
+Bạn có thể bypass bằng cách đặt tên giống như ở list 1, hoặc đặt file trong các subtree trên (nếu đặt trong onelink thì lưu ý sửa script lua hoặc sh của nó đi để vô hiệu tính năng kiểm tra thư mục)
+
 
 ## Đóng góp:
 - Xin cảm ơn 2 bạn [@BussyBakks](https://github.com/BussyBakks) và [@AppleSang](https://github.com/AppleSang) đã giúp em nghiên cứu thêm về key cho romfile.cfg dòng modem NS và cài các ứng dụng
